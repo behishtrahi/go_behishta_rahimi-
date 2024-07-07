@@ -1,0 +1,26 @@
+package main
+
+import "fmt"
+
+func main() {
+
+	//Q4 answer
+
+	score := 14
+
+	if score <= 24 && score >= 17 {
+		fmt.Println("high ")
+	} else {
+		if score <= 16 && score >= 10 {
+			fmt.Println(" medium")
+		}
+	}
+	if score <= 9 && score >= 3 {
+		fmt.Println(" low ")
+	} else {
+		if score <= 2 {
+			fmt.Println("impossible ")
+		}
+	}
+
+}

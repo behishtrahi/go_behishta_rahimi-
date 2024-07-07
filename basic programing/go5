@@ -1,0 +1,23 @@
+package main
+
+import "fmt"
+
+func main() {
+
+	// Q4 answer
+
+	var nu int
+
+	fmt.Print("please enter a number")
+
+	fmt.Scan(&nu)
+
+	for i := 1; i <= nu; i++ {
+
+		if i%2 == 0 && nu%i == 0 {
+			fmt.Println("I")
+		} else if i%2 != 0 && nu%i == 0 {
+			fmt.Println("O")
+		}
+	}
+}
