@@ -1,0 +1,23 @@
+// answwer 2
+
+package main 
+
+import"fmt"
+
+func main(){
+
+    func pow(x,nint) int{
+        if n==0{
+            return 1
+        }
+        result :=1
+        for n>0{
+            if n%2 ==1{
+                result *=x
+            }
+            x*=x
+            n/=2
+        }return result
+    }
+}
+}
