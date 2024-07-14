@@ -1,0 +1,26 @@
+package main
+
+import "fmt"
+
+func main() {
+  fmt.Println(groupPrime([]int{2, 3, 4, 5, 6, 7, 8})) // [[2,3,5,7],4,6,8]
+  fmt.Println(groupPrime([]int{15, 24, 3, 9, 5}))     // [[3,5],15,24,9]
+  fmt.Println(groupPrime([]int{4, 8, 9, 12}))         // [4,8,9,12]
+}
+
+func groupPrime(numbers []int) []any 
+  if n <= 1 {
+		return false
+	}
+	if n <= 3 {
+		return true
+	}
+	if n%2 == 0 || n%3 == 0 {
+		return false
+	}
+	for i := 5; i*i <= n; i += 6 {
+		if n%i == 0 || n%(i+2) == 0 {
+			return false
+		}
+  return []any{}
+}
