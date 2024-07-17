@@ -1,0 +1,91 @@
+//p2q1
+
+package main
+
+import (
+	"fmt"
+)
+
+// Vehicle struct to store vehicle information
+type Vehicle struct {
+	Name      string
+	Type      string
+	RentPrice float64
+}
+
+// Customer struct to store customer information
+type Customer struct {
+	Name           string
+	Address        string
+	RentedVehicles []*Vehicle
+}
+
+// RentalCompany struct to store customers and vehicles
+type RentalCompany struct {
+	Customers []Customer
+	Vehicles  []Vehicle
+}
+
+// Method to display the list of customers
+func (rc *RentalCompany) DisplayCustomers() {
+	fmt.Println("List of Customers:")
+	for _, customer := range rc.Customers {
+		fmt.Printf("Name: %s, Address: %s\n", customer.Name, customer.Address)
+		if len(customer.RentedVehicles) > 0 {
+			fmt.Println("Rented Vehicles:")
+			for _, vehicle := range customer.RentedVehicles {
+				fmt.Printf("  - %s (%s), Rent Price: $%.2f\n", vehicle.Name, vehicle.Type, vehicle.RentPrice)
+			}
+		} else {
+			fmt.Println("No rented vehicles")
+		}
+	}
+	fmt.Println()
+}
+
+// Method to display the list of rented vehicles
+func (rc *RentalCompany) DisplayRentedVehicles() {
+	fmt.Println("List of Rented Vehicles:")
+	for _, customer := range rc.Customers {
+		for _, vehicle := range customer.RentedVehicles {
+			fmt.Printf("Vehicle: %s (%s), Rented by: %s\n", vehicle.Name, vehicle.Type, customer.Name)
+		}
+	}
+	fmt.Println()
+}
+
+// Method to rent a vehicle
+func (rc *RentalCompany) RentVehicle(customerName, vehicleName string) {
+	for i, customer := range rc.Customers {
+		if customer.Name == customerName {
+			for j, vehicle := range rc.Vehicles {
+				if vehicle.Name == vehicleName {
+					rc.Customers[i].RentedVehicles = append(rc.Customers[i].RentedVehicles, &rc.Vehicles[j])
+					fmt.Printf("Vehicle %s has been rented to %s\n", vehicleName, customerName)
+					return
+				}
+			}
+			fmt.Printf("Vehicle %s not found\n", vehicleName)
+			return
+		}
+	}
+	fmt.Printf("Customer %s not found\n", customerName)
+}
+
+// Method to return a rented vehicle
+func (rc *RentalCompany) ReturnVehicle(customerName, vehicleName string) {
+	for i, customer := range rc.Customers {
+		if customer.Name == customerName {
+			for j, vehicle := range customer.RentedVehicles {
+				if vehicle.Name == vehicleName {
+					rc.Customers[i].RentedVehicles = append(customer.RentedVehicles[:j], customer.RentedVehicles[j+1:]...)
+					fmt.Printf("Vehicle %s has been returned by %s\n", vehicleName, customerName)
+					return
+				}
+			}
+			fmt.Printf("Vehicle %s not found in %s's rented vehicles\n", vehicleName, customerName)
+			return
+		}
+	}
+	fmt.Printf("Customer %s not found\n", customerName)
+}
