@@ -1,0 +1,97 @@
+// P2Q1
+
+package main
+
+import (
+	"bufio"
+	"encoding/csv"
+	"fmt"
+	"os"
+	"strings"
+	"sync"
+)
+
+// Function to count word frequencies in a chunk of text
+func countWords(text string, wg *sync.WaitGroup, ch chan<- map[string]int) {
+	defer wg.Done()
+
+	wordFreq := make(map[string]int)
+	words := strings.Fields(text)
+	for _, word := range words {
+		word = strings.ToLower(word)
+		wordFreq[word]++
+	}
+
+	ch <- wordFreq
+}
+
+// Function to merge word frequency maps
+func mergeWordFreq(maps []map[string]int) map[string]int {
+	merged := make(map[string]int)
+	for _, m := range maps {
+		for word, count := range m {
+			merged[word] += count
+		}
+	}
+	return merged
+}
+
+// Function to save word frequencies to a CSV file
+func saveToCSV(wordFreq map[string]int, filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	for word, freq := range wordFreq {
+		if err := writer.Write([]string{word, fmt.Sprint(freq)}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func main() {
+	// Open the text document
+	file, err := os.Open("text.txt")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	var wg sync.WaitGroup
+	ch := make(chan map[string]int, 10)
+	scanner := bufio.NewScanner(file)
+
+	// Read the file line by line and process each line concurrently
+	for scanner.Scan() {
+		line := scanner.Text()
+		wg.Add(1)
+		go countWords(line, &wg, ch)
+	}
+
+	// Close the channel once all goroutines are done
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	// Collect results from the channel and merge them
+	var wordFreqMaps []map[string]int
+	for freqMap := range ch {
+		wordFreqMaps = append(wordFreqMaps, freqMap)
+	}
+
+	wordFreq := mergeWordFreq(wordFreqMaps)
+
+	// Save the results to a CSV file
+	if err := saveToCSV(wordFreq, "word_frequencies.csv"); err != nil {
+		fmt.Println("Error saving to CSV:", err)
+	}
+}

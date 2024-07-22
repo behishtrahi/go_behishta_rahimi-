@@ -1,0 +1,83 @@
+//exploration
+
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"sync"
+)
+
+// Define a struct to match the JSON structure of the API response
+type User struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+// Function to fetch data from the API
+func fetchData(url string, wg *sync.WaitGroup, ch chan<- []User) {
+	defer wg.Done()
+
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Error fetching data:", err)
+		ch <- nil
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Error: Status code:", resp.StatusCode)
+		ch <- nil
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		ch <- nil
+		return
+	}
+
+	var users []User
+	if err := json.Unmarshal(body, &users); err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		ch <- nil
+		return
+	}
+
+	ch <- users
+}
+
+// Function to process the fetched data
+func processData(users []User) {
+	for _, user := range users {
+		fmt.Printf("ID: %d, Name: %s, Email: %s\n", user.ID, user.Name, user.Email)
+	}
+}
+
+func main() {
+	url := "https://fakestoreapi.com/users"
+	var wg sync.WaitGroup
+	ch := make(chan []User, 1)
+
+	// Start goroutine to fetch data from the API
+	wg.Add(1)
+	go fetchData(url, &wg, ch)
+
+	// Wait for the goroutine to finish and close the channel
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	// Process the data received from the channel
+	for users := range ch {
+		if users != nil {
+			processData(users)
+		}
+	}
+}
