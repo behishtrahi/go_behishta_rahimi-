@@ -1,0 +1,35 @@
+//P1Q2
+
+package main
+
+import "fmt"
+
+// Generate Pascal's Triangle
+func generatePascalTriangle(numRows int) [][]int {
+	// Initialize the Pascal's Triangle slice
+	triangle := make([][]int, numRows)
+
+	// Iterate over each row
+	for i := 0; i < numRows; i++ {
+		// Initialize the current row
+		triangle[i] = make([]int, i+1)
+		// Set the first and last element of the current row to 1
+		triangle[i][0] = 1
+		triangle[i][i] = 1
+
+		// Calculate the values for the elements in between
+		for j := 1; j < i; j++ {
+			triangle[i][j] = triangle[i-1][j-1] + triangle[i-1][j]
+		}
+	}
+
+	return triangle
+}
+
+func main() {
+	numRows := 5
+	result := generatePascalTriangle(numRows)
+	for _, row := range result {
+		fmt.Println(row)
+	}
+}
